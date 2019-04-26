@@ -1,0 +1,142 @@
+#!/bin/bash
+
+# object storage credentials
+export AWS_ACCESS_KEY_ID=
+export AWS_SECRET_ACCESS_KEY=
+
+# restic bucket and encryption password
+# other destinations: https://restic.readthedocs.io/en/latest/030_preparing_a_new_repo.html
+# good choice: https://github.com/restic/rest-server
+# example: export RESTIC_REPOSITORY=rest:http://172.16.32.10:8000/
+export RESTIC_REPOSITORY=s3:https://example.com/bucketname
+export RESTIC_PASSWORD=
+
+# exclude a pattern, can be specified multiple times, space separated
+EXCLUDE="--exclude=.cache"
+
+# limits uploads to a maximum rate in KiB/s, uncomment for unlimited
+LIMITUPLOAD="--limit-upload 51200"
+
+# folders to backup, space separated
+SOURCEDIRS="/"
+
+# backup retention
+KEEPHOURLY=0
+KEEPDAILY=7
+KEEPWEEKLY=4
+KEEPMONTHLY=2
+
+# restore folder
+RESTOREFOLDER=/tmp
+
+# mysql credentials
+MYSQLUSER=
+MYSQLPW=
+MYSQLHOST=
+
+
+
+
+##############################################
+### DO NOT CHANGE ANYTHING BELOW THIS LINE ###
+##############################################
+
+# restic binary
+RESTIC=$(which restic)
+
+install_restic() {
+    echo "downloading restic 0.9.4 linux amd64 ..."
+    $(which wget) --quiet https://github.com/restic/restic/releases/download/v0.9.4/restic_0.9.4_linux_amd64.bz2 -O /tmp/restic_0.9.4_linux_amd64.bz2
+    echo "unzip and move to /usr/local/bin/ ..."
+    $(which bunzip2) /tmp/restic_0.9.4_linux_amd64.bz2
+    mv /tmp/restic_0.9.4_linux_amd64 /usr/local/bin/restic
+    chmod +x /usr/local/bin/restic
+    echo "running restic self-update ..."
+    /usr/local/bin/restic self-update
+    /usr/local/bin/restic init
+    echo "create bash completion ..."
+    backup generate --bash-completion /etc/bash_completion.d/backup
+    sed -i 's/restic/backup/g' /etc/bash_completion.d/backup
+}
+
+install_restic_freebsd() {
+    echo "downloading restic 0.9.4 freebsd amd64 ..."
+    $(which wget) --quiet https://github.com/restic/restic/releases/download/v0.9.4/restic_0.9.4_freebsd_amd64.bz2 -O /tmp/restic_0.9.4_freebsd_amd64.bz2
+    echo "unzip and move to /usr/local/bin/ ..."
+    $(which bunzip2) /tmp/restic_0.9.4_freebsd_amd64.bz2
+    mv /tmp/restic_0.9.4_freebsd_amd64 /usr/local/bin/restic
+    chmod +x /usr/local/bin/restic
+    echo "running restic self-update ..."
+    /usr/local/bin/restic self-update
+    /usr/local/bin/restic init
+}
+
+case "$1" in
+
+  run)
+    $RESTIC backup --one-file-system --exclude-caches $EXCLUDE $LIMITUPLOAD $SOURCEDIRS
+  ;;
+
+  mysql)
+    $(which mysqldump) -u $MYSQLUSER -p$MYSQLPW -h $MYSQLHOST --all-databases | $RESTIC backup --tag mysql --stdin --stdin-filename /all_databases.sql
+  ;;
+
+  cleanup)
+    $RESTIC forget --keep-hourly $KEEPHOURLY --keep-daily $KEEPDAILY --keep-weekly $KEEPWEEKLY --keep-monthly $KEEPMONTHLY --prune
+  ;;
+
+  restore)
+    $RESTIC restore $2 --target $RESTOREFOLDER/restore-$(date +"%Y-%m-%d_%H%M")
+  ;;
+
+  restorefolder)
+    $RESTIC restore $2 --include $3 --target $4
+  ;;
+
+  install)
+    if [ $(grep -E "Debian|Ubuntu" /etc/*-release | wc -l) -ge 1 ]; then
+     echo "install on debian/ubuntu linux ..."
+     apt-get update && apt-get -y install vim wget bzip2
+     install_restic
+    elif [ $(grep -E "CentOS" /etc/*-release | wc -l) -ge 1 ]; then
+     echo "install on centos linux ..."
+     yum install -y vim-minimal.x86_64 wget.x86_64 bzip2.x86_64
+     ln -s /usr/bin/vi /usr/bin/vim
+     install_restic
+    elif [ $(grep -E "Arch|Manjaro" /etc/*-release | wc -l) -ge 1 ]; then
+     echo "install on arch linux ..."
+     pacman -S vim-minimal.x86_64 wget.x86_64 bzip2.x86_64 restic
+    elif [ -f "/bin/freebsd-version" ]; then
+     echo "install on freebsd ..."
+     pkg install vim-console wget bash zip
+     install_restic_freebsd
+    else
+     echo "EXIT - no debian, ubuntu, centos, arch linux or freebsd detected !"
+     exit 1
+    fi
+  ;;
+
+  edit)
+    $(which vim) $0
+  ;;
+
+  -h|--help)
+cat <<EOF
+* restic backup wrapper v1.1 (c) adminForge.de 2019"
+* Syntax: ${0##*/} {run|mysql|cleanup|restore|restorefolder|install|edit|-h}"
+
+* Examples:
+    list snapshots: ${0##*/} snapshots"
+    run backup : ${0##*/} run"
+    mysql backup  : ${0##*/} mysql"
+    restore    : ${0##*/} restore a323a1e3"
+    restorefolder : ${0##*/} restorefolder a323a1e3 folder-to-restore /destination-folder"
+EOF
+    exit 1
+  ;;
+
+  *)
+    $RESTIC $@
+  ;;
+
+esac
