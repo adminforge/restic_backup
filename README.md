@@ -1,5 +1,5 @@
 # restic_backup
-A restic backup wrapper script. <p>
+A restic backup wrapper script with systemd timers <p>
 Restic: https://github.com/restic/restic <p>
 Rest-Server: https://github.com/restic/rest-server <p>
 Docs: https://restic.readthedocs.io/en/latest/030_preparing_a_new_repo.html
