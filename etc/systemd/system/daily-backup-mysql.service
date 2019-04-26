@@ -1,0 +1,8 @@
+[Unit]
+Description=Daily MySQL Backup
+
+[Service]
+Type=simple
+Nice=10
+ExecStart=/usr/local/bin/backup mysql
+Environment="HOME=/root"
