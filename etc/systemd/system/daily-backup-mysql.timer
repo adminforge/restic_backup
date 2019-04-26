@@ -1,0 +1,10 @@
+[Unit]
+Description=Daily MySQL Backup Timer
+
+[Timer]
+OnCalendar=*-*-* 00:00:00
+RandomizedDelaySec=18000
+Persistent=True
+
+[Install]
+WantedBy=timers.target
