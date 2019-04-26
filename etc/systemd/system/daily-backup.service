@@ -1,0 +1,8 @@
+[Unit]
+Description=Daily Backup
+
+[Service]
+Type=simple
+Nice=10
+ExecStart=/usr/local/bin/backup run
+Environment="HOME=/root"
