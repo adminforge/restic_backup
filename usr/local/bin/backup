@@ -85,12 +85,12 @@ case "$1" in
     $RESTIC forget --keep-hourly $KEEPHOURLY --keep-daily $KEEPDAILY --keep-weekly $KEEPWEEKLY --keep-monthly $KEEPMONTHLY --prune
   ;;
 
-  restore)
+  restoresnap)
     $RESTIC restore $2 --target $RESTOREFOLDER/restore-$(date +"%Y-%m-%d_%H%M")
   ;;
 
-  restoreitem)
-    $RESTIC restore $2 --include $3 --target $4
+  restore)
+    $RESTIC restore $2 --include $3 --target $RESTOREFOLDER/restore-$(date +"%Y-%m-%d_%H%M")
   ;;
 
   install)
@@ -123,14 +123,14 @@ case "$1" in
   -h|--help)
 cat <<EOF
 * restic backup wrapper v1.2 (c) adminForge.de 2019
-* Syntax: ${0##*/} {run|mysql|cleanup|restore|restorefolder|install|edit|-h}
-
+* Syntax: ${0##*/} {run|mysql|cleanup|restoresnap|restore|install|edit|-h}
 * Examples:
-    list snapshots: ${0##*/} snapshots
-    run backup    : ${0##*/} run
-    mysql backup  : ${0##*/} mysql
-    restore       : ${0##*/} restore a323a1e3
-    restorefolder : ${0##*/} restoreitem a323a1e3 file-or-folder /destination/
+    list snapshots     : ${0##*/} snapshots
+    run backup         : ${0##*/} run
+    run mysql backup   : ${0##*/} mysql
+    find file          : ${0##*/} find /home/user/.bashrc
+    restore snapshot   : ${0##*/} restoresnap a323a1e3
+    restore file/folder: ${0##*/} restore a323a1e3 /home/user/.bashrc
 EOF
     exit 1
   ;;
