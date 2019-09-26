@@ -127,9 +127,9 @@ cat <<EOF
 
 * Examples:
     list snapshots: ${0##*/} snapshots
-    run backup : ${0##*/} run
+    run backup    : ${0##*/} run
     mysql backup  : ${0##*/} mysql
-    restore    : ${0##*/} restore a323a1e3
+    restore       : ${0##*/} restore a323a1e3
     restorefolder : ${0##*/} restoreitem a323a1e3 file-or-folder /destination/
 EOF
     exit 1
