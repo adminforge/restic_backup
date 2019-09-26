@@ -89,7 +89,7 @@ case "$1" in
     $RESTIC restore $2 --target $RESTOREFOLDER/restore-$(date +"%Y-%m-%d_%H%M")
   ;;
 
-  restorefolder)
+  restoreitem)
     $RESTIC restore $2 --include $3 --target $4
   ;;
 
@@ -122,15 +122,15 @@ case "$1" in
 
   -h|--help)
 cat <<EOF
-* restic backup wrapper v1.1 (c) adminForge.de 2019"
-* Syntax: ${0##*/} {run|mysql|cleanup|restore|restorefolder|install|edit|-h}"
+* restic backup wrapper v1.2 (c) adminForge.de 2019
+* Syntax: ${0##*/} {run|mysql|cleanup|restore|restorefolder|install|edit|-h}
 
 * Examples:
-    list snapshots: ${0##*/} snapshots"
-    run backup : ${0##*/} run"
-    mysql backup  : ${0##*/} mysql"
-    restore    : ${0##*/} restore a323a1e3"
-    restorefolder : ${0##*/} restorefolder a323a1e3 folder-to-restore /destination-folder"
+    list snapshots: ${0##*/} snapshots
+    run backup : ${0##*/} run
+    mysql backup  : ${0##*/} mysql
+    restore    : ${0##*/} restore a323a1e3
+    restorefolder : ${0##*/} restoreitem a323a1e3 file-or-folder /destination/
 EOF
     exit 1
   ;;
