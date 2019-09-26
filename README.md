@@ -60,15 +60,17 @@ cbd28eab  2019-03-27 14:29:13  srv01   /56c0c21d  2019-03-27 15:51:26  srv01    
 
 ### restore complete backup
 <pre>
-# backup restore 56c0c21drepository be3c73d6 opened successfully, password is correct
-restoring <Snapshot 56c0c21d of [/] at 2019-03-27 15:51:26.549106581 +0100 CET by root@sheep-nfs-01> to /tmp/restore-2019-03-27_1602[...]
+# backup restoresnap 56c0c21d
+repository be3c73d6 opened successfully, password is correct
+restoring <Snapshot 56c0c21d of [/] at 2019-03-27 15:51:26.549106581 +0100 CET by root@srv01> to /tmp/restore-2019-03-27_1602[...]
 </pre>
 
 ### restore single folder
 <pre>
-# backup restorefolder 56c0c21d /etc/default /tmp
+# backup restore 56c0c21d /etc/default
 repository be3c73d6 opened successfully, password is correct
-restoring <Snapshot 56c0c21d of [/] at 2019-03-27 15:51:26.549106581 +0100 CET by root@srv01> to /tmp# ls -lah /tmp/etc/default/
+restoring <Snapshot 56c0c21d of [/] at 2019-03-27 15:51:26.549106581 +0100 CET by root@srv01> to /tmp/restore-2019-03-27_1602[...]
+# ls -lah /tmp/restore-2019-03-27_1602/etc/default/
 total 80K
 drwxr-xr-x 2 root root 4.0K Mar 21 10:50 .
 drwx------ 3 root root 4.0K Mar 27 16:10 ..
