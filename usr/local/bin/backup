@@ -9,6 +9,7 @@ export AWS_SECRET_ACCESS_KEY=
 # good choice: https://github.com/restic/rest-server
 # example: export RESTIC_REPOSITORY=rest:http://172.16.32.10:8000/
 export RESTIC_REPOSITORY=s3:https://example.com/bucketname
+# Create a random backup password: < /dev/urandom tr -dc A-Za-z0-9 | head -c16; echo
 export RESTIC_PASSWORD=
 
 # exclude a pattern, can be specified multiple times, space separated
@@ -55,6 +56,7 @@ install_restic() {
     /usr/local/bin/restic self-update
     /usr/local/bin/restic init
     echo "create bash completion ..."
+    mkdir /etc/bash_completion.d
     backup generate --bash-completion /etc/bash_completion.d/backup
     sed -i 's/restic/backup/g' /etc/bash_completion.d/backup
 }
