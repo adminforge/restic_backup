@@ -2,7 +2,7 @@
 Description=Daily Backup Cleanup Timer
 
 [Timer]
-OnCalendar=*-*-* 00:00:00
+OnCalendar=*-*-* 05:00:00
 RandomizedDelaySec=18000
 Persistent=True
 
