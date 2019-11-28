@@ -1,8 +1,0 @@
-[Unit]
-Description=Daily Backup Cleanup
-
-[Service]
-Type=simple
-Nice=10
-ExecStart=/usr/local/bin/backup cleanup
-Environment="HOME=/root"
