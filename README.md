@@ -7,12 +7,10 @@ Docs: https://restic.readthedocs.io/en/latest/030_preparing_a_new_repo.html
 ## Install
 ### Debian / Ubuntu / CentOS / Arch / FreeBSD
 
-1) download git repo and copy files to the right folders
-2) make the script executable: <code>chmod +x /usr/local/bin/backup</code>
-3) create a RESTIC_REPOSITORY encryption password: <code>< /dev/urandom tr -dc A-Za-z0-9 | head -c16; echo</code>
-4) choose repository type in top of backup script
-5) download restic & initialize a new repository: <code>backup install</code>
-6) enable systemd timers: <code>systemctl start daily-backup.timer daily-backup-cleanup.timer && systemctl enable daily-backup.timer daily-backup-cleanup.timer</code>
+1) download restic backup wrapper: <code>wget https://raw.githubusercontent.com/adminforge/restic_backup/master/backup</code>
+2) create a RESTIC_REPOSITORY encryption password: <code>< /dev/urandom tr -dc A-Za-z0-9 | head -c16; echo</code>
+3) choose repository type in top of backup script
+4) install: <code>bash backup install</code>
 
 #### (optional) dependencies to backup mysql:
 ##### Debian / Ubuntu:
