@@ -13,7 +13,7 @@ Docs: https://restic.readthedocs.io/en/latest/030_preparing_a_new_repo.html
 <code>< /dev/urandom tr -dc A-Za-z0-9 | head -c16; echo</code>
 3) choose repository type in top of backup script and set credentials (see Docs)
 4) install: <code>bash backup install</code>
-5) a daily backup will run every day between 0-5 am
+5) a daily backup will run every day between 0-5am
 
 #### (optional) dependencies to backup mysql:
 ##### Debian / Ubuntu:
