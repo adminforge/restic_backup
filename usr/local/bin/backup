@@ -37,7 +37,6 @@ MYSQLHOST=
 
 
 
-
 ##############################################
 ### DO NOT CHANGE ANYTHING BELOW THIS LINE ###
 ##############################################
@@ -56,7 +55,7 @@ install_restic() {
     /usr/local/bin/restic self-update
     /usr/local/bin/restic init
     echo "create bash completion ..."
-    mkdir /etc/bash_completion.d
+    mkdir /etc/bash_completion.d >/dev/null 2>&1
     backup generate --bash-completion /etc/bash_completion.d/backup
     sed -i 's/restic/backup/g' /etc/bash_completion.d/backup
 }
@@ -71,6 +70,94 @@ install_restic_freebsd() {
     echo "running restic self-update ..."
     /usr/local/bin/restic self-update
     /usr/local/bin/restic init
+}
+
+install_systemd() {
+cat <<EOF > /etc/systemd/system/daily-backup.timer
+[Unit]
+Description=Daily Backup Timer
+
+[Timer]
+OnCalendar=*-*-* 00:00:00
+RandomizedDelaySec=18000
+Persistent=True
+
+[Install]
+WantedBy=timers.target
+EOF
+
+cat <<EOF > /etc/systemd/system/daily-backup.service
+[Unit]
+Description=Daily Backup
+
+[Service]
+Type=simple
+Nice=10
+ExecStart=/usr/local/bin/backup run
+Environment="HOME=/root"
+EOF
+
+cat <<EOF > /etc/systemd/system/daily-backup-cleanup.timer
+[Unit]
+Description=Daily Backup Cleanup Timer
+
+[Timer]
+OnCalendar=*-*-* 05:00:00
+RandomizedDelaySec=18000
+Persistent=True
+
+[Install]
+WantedBy=timers.target
+EOF
+
+cat <<EOF > /etc/systemd/system/daily-backup-cleanup.service
+[Unit]
+Description=Daily Backup Cleanup
+
+[Service]
+Type=simple
+Nice=10
+ExecStart=/usr/local/bin/backup cleanup
+Environment="HOME=/root"
+EOF
+
+cat <<EOF > /etc/systemd/system/daily-backup-mysql.timer
+[Unit]
+Description=Daily MySQL Backup Timer
+
+[Timer]
+OnCalendar=*-*-* 00:00:00
+RandomizedDelaySec=18000
+Persistent=True
+
+[Install]
+WantedBy=timers.target
+EOF
+
+cat <<EOF > /etc/systemd/system/daily-backup-mysql.service
+[Unit]
+Description=Daily MySQL Backup
+
+[Service]
+Type=simple
+Nice=10
+ExecStart=/usr/local/bin/backup mysql
+Environment="HOME=/root"
+EOF
+
+systemctl daemon-reload
+systemctl start daily-backup.timer daily-backup-cleanup.timer >/dev/null 2>&1
+systemctl enable daily-backup.timer daily-backup-cleanup.timer >/dev/null 2>&1
+}
+
+move_script() {
+CURRENTPWD=$(pwd)
+if ! [ -f /usr/local/bin/${0##*/} ]; then
+    chmod +x $CURRENTPWD/${0##*/}; mv -v $CURRENTPWD/${0##*/} /usr/local/bin/
+else
+    echo "restic backup wrapper already installed!"
+    exit
+fi
 }
 
 case "$1" in
@@ -98,18 +185,25 @@ case "$1" in
   install)
     if [ $(grep -E "Debian|Ubuntu" /etc/*-release | wc -l) -ge 1 ]; then
      echo "install on debian/ubuntu linux ..."
+     move_script
      apt-get update && apt-get -y install vim wget bzip2
      install_restic
+     install_systemd
     elif [ $(grep -E "CentOS" /etc/*-release | wc -l) -ge 1 ]; then
      echo "install on centos linux ..."
+     move_script
      yum install -y vim-minimal.x86_64 wget.x86_64 bzip2.x86_64
      ln -s /usr/bin/vi /usr/bin/vim
      install_restic
+     install_systemd
     elif [ $(grep -E "Arch|Manjaro" /etc/*-release | wc -l) -ge 1 ]; then
      echo "install on arch linux ..."
+     move_script
      pacman -S vim-minimal.x86_64 wget.x86_64 bzip2.x86_64 restic
+     install_systemd
     elif [ -f "/bin/freebsd-version" ]; then
      echo "install on freebsd ..."
+     move_script
      pkg install vim-console wget bash zip
      install_restic_freebsd
     else
@@ -124,7 +218,7 @@ case "$1" in
 
   -h|--help)
 cat <<EOF
-* restic backup wrapper v1.2 (c) adminForge.de 2019
+* restic backup wrapper v1.3 (c) adminForge.de 2019
 * Syntax: ${0##*/} {run|mysql|cleanup|restoresnap|restore|install|edit|-h}
 * Examples:
     list snapshots     : ${0##*/} snapshots
