@@ -199,7 +199,7 @@ case "$1" in
     elif [ $(grep -E "Arch|Manjaro" /etc/*-release | wc -l) -ge 1 ]; then
      echo "install on arch linux ..."
      move_script
-     pacman -S vim wget bzip2 restic
+     pacman --noconfirm -S vim wget bzip2 restic
      install_systemd
     elif [ -f "/bin/freebsd-version" ]; then
      echo "install on freebsd ..."
