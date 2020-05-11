@@ -200,6 +200,7 @@ case "$1" in
      echo "install on arch linux ..."
      move_script
      pacman --noconfirm -S vim wget bzip2 restic
+     /usr/bin/restic init
      install_systemd
     elif [ -f "/bin/freebsd-version" ]; then
      echo "install on freebsd ..."
