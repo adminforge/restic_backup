@@ -151,8 +151,7 @@ cat <<EOF > /etc/systemd/system/weekly-backup-self-update.timer
 Description=Weekly Backup Self-Update Timer
 
 [Timer]
-OnCalendar=*-*-* 00:00:00
-RandomizedDelaySec=18000
+OnCalendar=weekly
 Persistent=True
 
 [Install]
@@ -240,7 +239,7 @@ case "$1" in
   
   update)
     $RESTIC self-update
-    $(which wget) https://raw.githubusercontent.com/adminforge/restic_backup/master/backup -O /usr/local/bin/backup
+    $(which wget) --quiet https://raw.githubusercontent.com/adminforge/restic_backup/master/backup -O /usr/local/bin/backup
   ;;
   
   edit)
