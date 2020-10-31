@@ -1,14 +1,15 @@
 #!/bin/bash
 
 # object storage credentials
-export AWS_ACCESS_KEY_ID=
-export AWS_SECRET_ACCESS_KEY=
+#export AWS_ACCESS_KEY_ID=
+#export AWS_SECRET_ACCESS_KEY=
 
 # restic bucket and encryption password
 # other destinations: https://restic.readthedocs.io/en/latest/030_preparing_a_new_repo.html
 # good choice: https://github.com/restic/rest-server
 # example: export RESTIC_REPOSITORY=rest:http://172.16.32.10:8000/
-export RESTIC_REPOSITORY=s3:https://example.com/bucketname
+#export RESTIC_REPOSITORY=s3:https://example.com/bucketname
+export RESTIC_REPOSITORY=rest:http://172.16.32.10:8000/$HOSTNAME/
 # Create a random backup password: < /dev/urandom tr -dc A-Za-z0-9 | head -c16; echo
 export RESTIC_PASSWORD=
 
@@ -145,9 +146,33 @@ ExecStart=/usr/local/bin/backup mysql
 Environment="HOME=/root"
 EOF
 
+cat <<EOF > /etc/systemd/system/weekly-backup-self-update.timer
+[Unit]
+Description=Weekly Backup Self-Update Timer
+
+[Timer]
+OnCalendar=*-*-* 00:00:00
+RandomizedDelaySec=18000
+Persistent=True
+
+[Install]
+WantedBy=timers.target
+EOF
+
+cat <<EOF > /etc/systemd/system/weekly-backup-self-update.service
+[Unit]
+Description=Weekly Backup Self-Update
+
+[Service]
+Type=simple
+Nice=10
+ExecStart=/usr/local/bin/backup update
+Environment="HOME=/root"
+EOF
+
 systemctl daemon-reload
-systemctl start daily-backup.timer daily-backup-cleanup.timer >/dev/null 2>&1
-systemctl enable daily-backup.timer daily-backup-cleanup.timer >/dev/null 2>&1
+systemctl start daily-backup.timer daily-backup-cleanup.timer weekly-backup-self-update.timer >/dev/null 2>&1
+systemctl enable daily-backup.timer daily-backup-cleanup.timer weekly-backup-self-update.timer >/dev/null 2>&1
 }
 
 move_script() {
@@ -212,15 +237,20 @@ case "$1" in
      exit 1
     fi
   ;;
-
+  
+  update)
+    $RESTIC self-update
+    $(which wget) https://raw.githubusercontent.com/adminforge/restic_backup/master/backup -O /usr/local/bin/backup
+  ;;
+  
   edit)
     $(which vim) $0
   ;;
 
   -h|--help)
 cat <<EOF
-* restic backup wrapper v1.3 (c) adminForge.de 2019
-* Syntax: ${0##*/} {run|mysql|cleanup|restoresnap|restore|install|edit|-h}
+* restic backup wrapper v1.4 (c) adminForge.de 2020
+* Syntax: ${0##*/} {run|mysql|cleanup|restoresnap|restore|install|update|edit|-h}
 * Examples:
     list snapshots     : ${0##*/} snapshots
     run backup         : ${0##*/} run
