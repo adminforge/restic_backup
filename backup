@@ -218,6 +218,8 @@ case "$1" in
 cat <<EOF > /usr/lib/nagios/plugins/check_restic_daily
 #!/usr/bin/env bash
 
+source /etc/.restic.config
+
 # Nagios alert status
 STATE_OK=0
 STATE_WARNING=1
@@ -225,14 +227,14 @@ STATE_CRITICAL=2
 STATE_UNKNOWN=3
 
 # check daily restic backup run
-daily=\$(/usr/local/bin/backup snapshots -c | grep \$(hostname) | egrep "\$(date '+%Y-%m-%d')|\$(date --date='1 day ago' +%Y-%m-%d)" | wc -l)
+daily=\$(/usr/local/bin/restic snapshots -c | grep \$(hostname) | egrep "\$(date '+%Y-%m-%d')|\$(date --date='1 day ago' +%Y-%m-%d)" | wc -l)
 if [ \$daily = 0 ]; then
         echo "WARNING - daily restic backup did NOT run !"
         exit "\$STATE_WARNING"
 fi
 
 # check if a backup exists
-exists=\$(/usr/local/bin/backup snapshots -c | grep \$(hostname) | wc -l)
+exists=\$(/usr/local/bin/restic snapshots -c | grep \$(hostname) | wc -l)
 if [ \$exists = 0 ]; then
         echo "CRITICAL - NO restic backup found !"
         exit "\$STATE_CRITICAL"
