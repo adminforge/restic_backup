@@ -274,6 +274,7 @@ exit "\$STATE_OK"
 EOF
 
     chmod +x /usr/lib/nagios/plugins/check_restic_daily
+    systemctl restart nagios-nrpe-server.service
     echo ""
     echo "Test run:"
     /usr/lib/nagios/plugins/check_restic_daily
