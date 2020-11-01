@@ -1,42 +1,7 @@
 #!/bin/bash
 
-# object storage credentials
-#export AWS_ACCESS_KEY_ID=
-#export AWS_SECRET_ACCESS_KEY=
-
-# restic bucket and encryption password
-# other destinations: https://restic.readthedocs.io/en/latest/030_preparing_a_new_repo.html
-# good choice: https://github.com/restic/rest-server
-# example: export RESTIC_REPOSITORY=rest:http://172.16.32.10:8000/
-#export RESTIC_REPOSITORY=s3:https://example.com/bucketname
-export RESTIC_REPOSITORY=rest:http://172.16.32.10:8000/
-# Create a random backup password: < /dev/urandom tr -dc A-Za-z0-9 | head -c16; echo
-export RESTIC_PASSWORD=
-
-# exclude a pattern, can be specified multiple times, space separated
-EXCLUDE="--exclude=.cache"
-
-# limits uploads to a maximum rate in KiB/s, uncomment for unlimited
-LIMITUPLOAD="--limit-upload 51200"
-
-# folders to backup, space separated
-SOURCEDIRS="/"
-
-# backup retention
-KEEPHOURLY=0
-KEEPDAILY=7
-KEEPWEEKLY=4
-KEEPMONTHLY=2
-
-# restore folder
-RESTOREFOLDER=/tmp
-
-# mysql credentials
-MYSQLUSER=
-MYSQLPW=
-MYSQLHOST=
-
-
+# read configuration
+source /etc/.restic.config
 
 ##############################################
 ### DO NOT CHANGE ANYTHING BELOW THIS LINE ###
@@ -46,6 +11,10 @@ MYSQLHOST=
 RESTIC=$(which restic)
 
 install_restic() {
+    if ! [ -f /etc/.restic.config ]; then
+    echo "downloading .restic.config ..."
+    $(which wget) --quiet https://raw.githubusercontent.com/adminforge/restic_backup/master/etc/.restic.config -O /etc/.restic.config
+    fi
     echo "downloading restic 0.9.4 linux amd64 ..."
     $(which wget) --quiet https://github.com/restic/restic/releases/download/v0.9.4/restic_0.9.4_linux_amd64.bz2 -O /tmp/restic_0.9.4_linux_amd64.bz2
     echo "unzip and move to /usr/local/bin/ ..."
