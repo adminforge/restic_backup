@@ -9,7 +9,7 @@
 # good choice: https://github.com/restic/rest-server
 # example: export RESTIC_REPOSITORY=rest:http://172.16.32.10:8000/
 #export RESTIC_REPOSITORY=s3:https://example.com/bucketname
-export RESTIC_REPOSITORY=rest:http://172.16.32.10:8000/$HOSTNAME/
+export RESTIC_REPOSITORY=rest:http://172.16.32.10:8000/
 # Create a random backup password: < /dev/urandom tr -dc A-Za-z0-9 | head -c16; echo
 export RESTIC_PASSWORD=
 
@@ -242,14 +242,64 @@ case "$1" in
     $(which wget) --quiet https://raw.githubusercontent.com/adminforge/restic_backup/master/backup -O /usr/local/bin/backup
   ;;
   
+  nagios)
+    echo "Installing Nagios 'check_restic_daily' NRPE Plugin:"
+    sed -i '/command\[check_restic_daily\]=/d; 1h;1!H;$!d;x;s!.*command\[[^\n]*!&\ncommand[check_restic_daily]=/usr/lib/nagios/plugins/check_restic_daily!' /etc/nagios/nrpe.cfg
+
+cat <<EOF > /usr/lib/nagios/plugins/check_restic_daily
+#!/usr/bin/env bash
+
+# Nagios alert status
+STATE_OK=0
+STATE_WARNING=1
+STATE_CRITICAL=2
+STATE_UNKNOWN=3
+
+# check daily restic backup run
+daily=\$(/usr/local/bin/backup snapshots -c | grep \$(hostname) | egrep "\$(date '+%Y-%m-%d')|\$(date --date='1 day ago' +%Y-%m-%d)" | wc -l)
+if [ \$daily = 0 ]; then
+        echo "WARNING - daily restic backup did NOT run !"
+        exit "\$STATE_WARNING"
+fi
+
+# check if a backup exists
+exists=\$(/usr/local/bin/backup snapshots -c | grep \$(hostname) | wc -l)
+if [ \$exists = 0 ]; then
+        echo "CRITICAL - NO restic backup found !"
+        exit "\$STATE_CRITICAL"
+fi
+
+echo "OK - daily restic backup is DONE"
+exit "\$STATE_OK"
+EOF
+
+    chmod +x /usr/lib/nagios/plugins/check_restic_daily
+    echo ""
+    echo "Test run:"
+    /usr/lib/nagios/plugins/check_restic_daily
+   echo ""
+   echo "Nagios Service example:"
+cat <<EOF
+
+define service{
+        use                             generic-service
+        host_name                       my.hostname.com
+        service_description             Restic Backup
+        check_command                   check_nrpe_1arg!check_restic_daily
+        }
+
+EOF
+    exit 0
+  ;;
+  
   edit)
     $(which vim) $0
   ;;
 
   -h|--help)
 cat <<EOF
-* restic backup wrapper v1.4 (c) adminForge.de 2020
-* Syntax: ${0##*/} {run|mysql|cleanup|restoresnap|restore|install|update|edit|-h}
+* restic backup wrapper v1.5 (c) adminForge.de 2020
+* Syntax: ${0##*/} {run|mysql|cleanup|restoresnap|restore|install|update|nagios|edit|-h}
 * Examples:
     list snapshots     : ${0##*/} snapshots
     run backup         : ${0##*/} run
