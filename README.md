@@ -9,10 +9,10 @@ Docs: https://restic.readthedocs.io/en/latest/030_preparing_a_new_repo.html
 
 1) download restic backup wrapper:<br>
 <code>wget https://raw.githubusercontent.com/adminforge/restic_backup/master/backup</code>
-2) create a RESTIC_REPOSITORY encryption password RESTIC_PASSWORD:<br>
+2) install: <code>bash backup install</code>
+3) create a RESTIC_REPOSITORY encryption password RESTIC_PASSWORD:<br>
 <code>< /dev/urandom tr -dc A-Za-z0-9 | head -c16; echo</code>
-3) choose repository type in top of backup script and set credentials (see Docs)
-4) install: <code>bash backup install</code>
+  4) edit <code>/etc/.restic.config</code> and choose repository type and set credentials (see Docs)
 5) a daily backup will run every day between 0-5am
 
 #### (optional) dependencies to backup mysql:
