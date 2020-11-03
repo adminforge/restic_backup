@@ -265,7 +265,7 @@ EOF
   ;;
   
   edit)
-    $(which vim) $0
+    $(which vim) /etc/.restic.config
   ;;
 
   -h|--help)
