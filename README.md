@@ -13,7 +13,8 @@ Docs: https://restic.readthedocs.io/en/latest/030_preparing_a_new_repo.html
 3) create a RESTIC_REPOSITORY encryption password RESTIC_PASSWORD:<br>
 <code>< /dev/urandom tr -dc A-Za-z0-9 | head -c16; echo</code>
   4) edit <code>/etc/.restic.config</code> and choose repository type and set credentials (see Docs)
-5) a daily backup will run every day between 0-5am
+  5) start off with creating a repository for your backups <code>backup init</code>
+6) a daily backup will run every day between 0-5am
 
 #### (optional) dependencies to backup mysql:
 ##### Debian / Ubuntu:
