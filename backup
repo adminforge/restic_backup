@@ -228,7 +228,7 @@ STATE_CRITICAL=2
 STATE_UNKNOWN=3
 
 # list snapshots for this host
-snapshots=$(/usr/local/bin/restic snapshots -c -H \$(hostname))
+snapshots=\$(/usr/local/bin/restic snapshots -c -H \$(hostname))
 
 # check daily restic backup run
 daily=\$(echo \$snapshots | egrep "\$(date '+%Y-%m-%d')|\$(date --date='1 day ago' +%Y-%m-%d)" | wc -l)
