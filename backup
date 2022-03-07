@@ -164,8 +164,7 @@ case "$1" in
   ;;
 
   cleanup)
-    $RESTIC unlock
-    $RESTIC forget --keep-hourly $KEEPHOURLY --keep-daily $KEEPDAILY --keep-weekly $KEEPWEEKLY --keep-monthly $KEEPMONTHLY --prune
+    $RESTIC forget --keep-hourly $KEEPHOURLY --keep-daily $KEEPDAILY --keep-weekly $KEEPWEEKLY --keep-monthly $KEEPMONTHLY --no-lock --prune
   ;;
 
   restoresnap)
