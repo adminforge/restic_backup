@@ -5,11 +5,11 @@ Rest-Server: https://github.com/restic/rest-server <p>
 Docs: https://restic.readthedocs.io/en/latest/030_preparing_a_new_repo.html
 
 ## Install
-### Debian / Ubuntu / CentOS / Arch / FreeBSD
+### Debian / Ubuntu / CentOS / Arch / Manjaro / EndeavourOS / FreeBSD
 
 1) download restic backup wrapper:<br>
 <code>wget https://raw.githubusercontent.com/adminforge/restic_backup/master/backup</code>
-2) install: <code>bash backup install</code>
+2) install: <code>sudo bash backup install</code>
 3) create a RESTIC_REPOSITORY encryption password RESTIC_PASSWORD:<br>
 <code>< /dev/urandom tr -dc A-Za-z0-9 | head -c16; echo</code>
   4) edit <code>/etc/.restic.config</code> and choose repository type and set credentials (see Docs)
