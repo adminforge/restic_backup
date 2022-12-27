@@ -190,7 +190,7 @@ case "$1" in
      ln -s /usr/bin/vi /usr/bin/vim
      install_restic
      install_systemd
-    elif [ $(grep -E "Arch|Manjaro" /etc/*-release | wc -l) -ge 1 ]; then
+    elif [ $(grep -E "Arch|Manjaro|EndeavourOS" /etc/*-release | wc -l) -ge 1 ]; then
      echo "install on arch linux ..."
      move_script
      pacman --noconfirm -S vim wget bzip2 restic
