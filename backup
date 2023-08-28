@@ -172,7 +172,7 @@ fi
 case "$1" in
 
   run)
-    $RESTIC backup --one-file-system --exclude-caches --read-concurrency 10 $EXCLUDE $LIMITUPLOAD $SOURCEDIRS
+    $RESTIC backup --one-file-system --exclude-caches --read-concurrency 10 --no-scan $EXCLUDE $LIMITUPLOAD $SOURCEDIRS
   ;;
 
   mysql)
