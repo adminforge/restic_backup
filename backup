@@ -106,16 +106,12 @@ EOF
 cat <<EOF > /etc/systemd/system/daily-backup-mysql.service
 [Unit]
 Description=Daily MySQL Backup
-After=network.target
 
 [Service]
 Type=oneshot
 Nice=10
 ExecStart=/usr/local/bin/backup mysql
 Environment="HOME=/root"
-
-[Install]
-WantedBy=multi-user.target
 EOF
 
 cat <<EOF > /etc/systemd/system/weekly-backup-self-update.timer
@@ -130,7 +126,7 @@ Persistent=True
 WantedBy=timers.target
 EOF
 
-cat <<EOF > /etc/systemd/system/weekly-backup-self-update.service
+cat <<EOF > c
 [Unit]
 Description=Weekly Backup Self-Update
 After=network.target
