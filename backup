@@ -59,16 +59,12 @@ EOF
 cat <<EOF > /etc/systemd/system/daily-backup.service
 [Unit]
 Description=Daily Backup
-After=network.target
 
 [Service]
 Type=oneshot
 Nice=10
 ExecStart=/usr/local/bin/backup run
 Environment="HOME=/root"
-
-[Install]
-WantedBy=multi-user.target
 EOF
 
 cat <<EOF > /etc/systemd/system/daily-backup-cleanup.timer
@@ -87,16 +83,11 @@ EOF
 cat <<EOF > /etc/systemd/system/daily-backup-cleanup.service
 [Unit]
 Description=Daily Backup Cleanup
-After=network.target
-
 [Service]
 Type=oneshot
 Nice=10
 ExecStart=/usr/local/bin/backup cleanup
 Environment="HOME=/root"
-
-[Install]
-WantedBy=multi-user.target
 EOF
 
 cat <<EOF > /etc/systemd/system/daily-backup-mysql.timer
