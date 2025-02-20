@@ -126,7 +126,7 @@ Persistent=True
 WantedBy=timers.target
 EOF
 
-cat <<EOF > c
+cat <<EOF > /etc/systemd/system/weekly-backup-self-update.service
 [Unit]
 Description=Weekly Backup Self-Update
 After=network.target
